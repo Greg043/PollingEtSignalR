@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UselessTask } from '../models/UselessTask';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-polling',
@@ -13,18 +14,26 @@ export class PollingComponent implements OnInit {
   tasks: UselessTask[] = [];
   taskname: string = "";
 
+  serverUrl = "https://localhost:7289/";
+
   constructor(private http:HttpClient){}
 
   ngOnInit(): void {
     this.updateTasks();
   }
 
-  complete(id: number) {
+  async complete(id: number) {
     // TODO On invoke la méthode pour compléter une tâche sur le serveur (Contrôleur d'API)
+    let result = await firstValueFrom(this.http.get<number>(this.serverUrl + 'api/UselessTasks/Complete/'+id));
+    return result;
   }
 
-  addtask() {
+  async addtask() {
     // TODO On invoke la méthode pour ajouter une tâche sur le serveur (Contrôleur d'API)
+    let taskText = this.taskname
+    let params = new HttpParams().set('taskText', taskText);
+    let result = await lastValueFrom(this.http.post<UselessTask>(this.serverUrl + 'api/UselessTasks/add', null , { params }));
+    return result;
   }
 
   updateTasks() {
